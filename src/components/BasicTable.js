@@ -8,18 +8,14 @@ export const BasicTable = () => {
   const columns = useMemo(() => COLUMNS, []);
   const data = useMemo(() => MOCK_DATA, []);
 
-  const tableInstance = useTable({
-    columns: columns,
-    data: data,
-  });
-
   const {
     getTableProps,
     getTableBodyProps,
     headerGroups,
+    footerGroups,
     rows,
     prepareRow,
-  } = tableInstance;
+  } = useTable({ columns: columns, data: data });
 
   return (
     <table {...getTableProps()}>
@@ -27,7 +23,7 @@ export const BasicTable = () => {
         {headerGroups.map((headerGroup, key) => (
           <tr {...headerGroup.getHeaderGroupProps()} key={key}>
             {headerGroup.headers.map((column, key) => (
-              <th {...column.getHeaderProps()} key={key}>
+              <th {...column.getHeaderProps} key={key}>
                 {column.render("Header")}
               </th>
             ))}
@@ -50,6 +46,21 @@ export const BasicTable = () => {
           );
         })}
       </tbody>
+      <tfoot>
+        {footerGroups.map((footerGroup, i) => {
+          return (
+            <tr {...footerGroup.getFooterGroupProps()} key={i}>
+              {footerGroup.headers.map((column, key) => {
+                return (
+                  <td {...column.getFooterProps} key={key}>
+                    {column.render("Footer")}
+                  </td>
+                );
+              })}
+            </tr>
+          );
+        })}
+      </tfoot>
     </table>
   );
 };
