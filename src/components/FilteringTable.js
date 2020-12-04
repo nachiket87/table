@@ -1,0 +1,86 @@
+import React, { useMemo } from "react";
+import { useTable, useFilters, useGlobalFilter } from "react-table";
+import MOCK_DATA from "./MOCK_DATA.json";
+import { COLUMNS } from "./columns";
+import "./table.css";
+import { GlobalFilter } from "./GlobalFilter";
+import { ColumnFilter } from "./ColumnFilter";
+
+export const FilteringTable = () => {
+  const columns = useMemo(() => COLUMNS, []);
+  const data = useMemo(() => MOCK_DATA, []);
+  const defaultColumn = React.useMemo(
+    () => ({
+      Filter: ColumnFilter,
+    }),
+    []
+  );
+
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    footerGroups,
+    rows,
+    prepareRow,
+    state,
+    setGlobalFilter,
+  } = useTable(
+    {
+      columns,
+      data,
+      defaultColumn,
+    },
+    useFilters,
+    useGlobalFilter
+  );
+
+  const { globalFilter } = state;
+
+  return (
+    <>
+      <GlobalFilter filter={globalFilter} setFilter={setGlobalFilter} />
+      <table {...getTableProps()}>
+        <thead>
+          {headerGroups.map((headerGroup, key) => (
+            <tr {...headerGroup.getHeaderGroupProps()} key={key}>
+              {headerGroup.headers.map((column, key) => (
+                <th {...column.getHeaderProps()} key={key}>
+                  {column.render("Header")}
+                  <div>{column.canFilter ? column.render("Filter") : null}</div>
+                </th>
+              ))}
+            </tr>
+          ))}
+        </thead>
+        <tbody {...getTableBodyProps()}>
+          {rows.map((row, key) => {
+            prepareRow(row);
+            return (
+              <tr {...row.getRowProps()} key={key}>
+                {row.cells.map((cell, key) => {
+                  return (
+                    <td {...cell.getCellProps()} key={key}>
+                      {cell.render("Cell")}
+                    </td>
+                  );
+                })}
+              </tr>
+            );
+          })}
+        </tbody>
+        <tfoot>
+          {footerGroups.map((footerGroup, key) => (
+            <tr {...footerGroup.getFooterGroupProps()} key={key}>
+              {footerGroup.headers.map((column, key) => (
+                <td {...column.getFooterProps()} key={key}>
+                  {column.render("Footer")}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tfoot>
+      </table>
+    </>
+  );
+};
